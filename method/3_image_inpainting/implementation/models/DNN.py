@@ -10,8 +10,8 @@ class DNN(BaseNN):
    def encoder(self,X,mask):
     ### Encoder
     ########## layer -------1
-    conv1 = tf.layers.conv2d(inputs=X, filters=32, kernel_size=(7, 7),strides=(2,2), padding='same', activation=tf.nn.relu)
-    update_mask1 = tf.layers.conv2d(mask, filters=1,
+    conv1 = tf.compat.v1.layers.conv2d(inputs=X, filters=32, kernel_size=(7, 7),strides=(2,2), padding='same', activation=tf.nn.relu)
+    update_mask1 = tf.compat.v1.layers.conv2d(mask, filters=1,
                                                kernel_size=(7, 7), kernel_initializer=tf.constant_initializer(1.0),strides=(2,2),
                                                 padding='same', use_bias=False, trainable=False, activation=tf.nn.relu)
     mask_ratio1 = 9 / (update_mask1 )
@@ -20,8 +20,8 @@ class DNN(BaseNN):
     conv1 = conv1 * mask_ratio1
 
     ########## layer -------2
-    conv2 = tf.layers.conv2d(inputs=conv1, filters=64, kernel_size=(5, 5),strides=(2,2), padding='same', activation=tf.nn.relu)
-    update_mask2 = tf.layers.conv2d(um1, filters=1,
+    conv2 = tf.compat.v1.layers.conv2d(inputs=conv1, filters=64, kernel_size=(5, 5),strides=(2,2), padding='same', activation=tf.nn.relu)
+    update_mask2 = tf.compat.v1.layers.conv2d(um1, filters=1,
                                                kernel_size=(5, 5),strides=(2,2), kernel_initializer=tf.constant_initializer(1.0),
                                                 padding='same', use_bias=False, trainable=False, activation=tf.nn.relu)
     mask_ratio2 = 9 / (update_mask2 )
@@ -29,8 +29,8 @@ class DNN(BaseNN):
     mask_ratio2 = mask_ratio2 * um2
     conv2 = conv2 * mask_ratio2
     ########## layer -------3
-    conv3 = tf.layers.conv2d(inputs=conv2, filters=128, kernel_size=(5,5),strides=(2,2), padding='same', activation=tf.nn.relu)
-    update_mask3 = tf.layers.conv2d(um2, filters=1,
+    conv3 = tf.compat.v1.layers.conv2d(inputs=conv2, filters=128, kernel_size=(5,5),strides=(2,2), padding='same', activation=tf.nn.relu)
+    update_mask3 = tf.compat.v1.layers.conv2d(um2, filters=1,
                                                kernel_size=(5, 5),strides=(2,2), kernel_initializer=tf.constant_initializer(1.0),
                                                 padding='same', use_bias=False, trainable=False, activation=tf.nn.relu)
     mask_ratio3 = 9 / (update_mask3 )
@@ -41,8 +41,8 @@ class DNN(BaseNN):
    
     ########## layer -------4
   
-    conv4 = tf.layers.conv2d(inputs=conv3, filters=256, kernel_size=(3,3),strides=(2,2), padding='same', activation=tf.nn.relu)
-    update_mask4 = tf.layers.conv2d(um3, filters=1,
+    conv4 = tf.compat.v1.layers.conv2d(inputs=conv3, filters=256, kernel_size=(3,3),strides=(2,2), padding='same', activation=tf.nn.relu)
+    update_mask4 = tf.compat.v1.layers.conv2d(um3, filters=1,
                                                kernel_size=(3, 3),strides=(2,2), kernel_initializer=tf.constant_initializer(1.0),
                                                 padding='same', use_bias=False, trainable=False, activation=tf.nn.relu)
     mask_ratio4 = 9 / (update_mask4 )
@@ -59,26 +59,26 @@ class DNN(BaseNN):
 # Building the decoder
    def decoder(self,X):
     ### Decoder
-    upsample1 = tf.image.resize_images(X, size=(self.height_of_image//8, self.width_of_image//8), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-    conv4 = tf.layers.conv2d(inputs=upsample1, filters=128, kernel_size=(3,3), padding='same', activation=tf.nn.relu)
+    upsample1 = tf.compat.v1.image.resize_images(X, size=(self.height_of_image//8, self.width_of_image//8), method=tf.compat.v1.image.ResizeMethod.NEAREST_NEIGHBOR)
+    conv4 = tf.compat.v1.layers.conv2d(inputs=upsample1, filters=128, kernel_size=(3,3), padding='same', activation=tf.compat.v1.nn.relu)
 
-    upsample2 = tf.image.resize_images(conv4, size=(self.height_of_image//4, self.width_of_image//4), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-    conv5 = tf.layers.conv2d(inputs=upsample2, filters=64, kernel_size=(3,3), padding='same', activation=tf.nn.relu)
+    upsample2 = tf.compat.v1.image.resize_images(conv4, size=(self.height_of_image//4, self.width_of_image//4), method=tf.compat.v1.image.ResizeMethod.NEAREST_NEIGHBOR)
+    conv5 = tf.compat.v1.layers.conv2d(inputs=upsample2, filters=64, kernel_size=(3,3), padding='same', activation=tf.compat.v1.nn.relu)
 
-    upsample3 = tf.image.resize_images(conv5, size=(self.height_of_image//2, self.width_of_image//2), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-    conv6 = tf.layers.conv2d(inputs=upsample3, filters=32, kernel_size=(3,3), padding='same', activation=tf.nn.relu)
+    upsample3 = tf.compat.v1.image.resize_images(conv5, size=(self.height_of_image//2, self.width_of_image//2), method=tf.compat.v1.image.ResizeMethod.NEAREST_NEIGHBOR)
+    conv6 = tf.compat.v1.layers.conv2d(inputs=upsample3, filters=32, kernel_size=(3,3), padding='same', activation=tf.compat.v1.nn.relu)
 
-    upsample4 = tf.image.resize_images(conv6, size=(self.height_of_image, self.width_of_image), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
-    logits = tf.layers.conv2d(inputs=upsample4, filters=self.num_channels, kernel_size=(3,3), padding='same', activation=None)
+    upsample4 = tf.compat.v1.image.resize_images(conv6, size=(self.height_of_image, self.width_of_image), method=tf.compat.v1.image.ResizeMethod.NEAREST_NEIGHBOR)
+    logits = tf.compat.v1.layers.conv2d(inputs=upsample4, filters=self.num_channels, kernel_size=(3,3), padding='same', activation=None)
 
     # Pass logits through sigmoid to get reconstructed image
-    decoded = tf.nn.sigmoid(logits)
+    decoded = tf.compat.v1.nn.sigmoid(logits)
 
     return logits, decoded  
 
        
    def metrics(self, Y, Y_pred):     
-       loss = tf.losses.mean_squared_error(Y,Y_pred)
+       loss = tf.compat.v1.losses.mean_squared_error(Y,Y_pred)
        return loss
 
    def get_boundary(self,mask):
@@ -156,10 +156,3 @@ class DNN(BaseNN):
     img_with_hole=img_with_hole.reshape(img.shape[0], img.shape[1], img.shape[2],img.shape[3])
 
     return img_with_hole
-
-
-
-    
-
-
-
