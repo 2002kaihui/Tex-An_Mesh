@@ -1,4 +1,6 @@
-import tensorflow as tf
+import tensorflow._api.v2.compat.v1 as tf
+tf.disable_v2_behavior()
+
 from data_loader import *
 from abc import abstractmethod
 import math
@@ -46,8 +48,8 @@ class BaseNN:
     def create_network(self,model_type):
         if model_type == "train":
 
-            self.x = tf.placeholder("float",[None, self.height_of_image, self.width_of_image, self.num_channels] ,name="x")
-            self.mask = tf.placeholder("float",[None, self.height_of_image, self.width_of_image, 1] ,name="mask")
+            self.x = tf.compat.v1.placeholder(tf.float32, shape=(None, self.height_of_image, self.width_of_image, int(self.num_channels)), name="x")
+            self.mask = tf.compat.v1.placeholder("float",[None, self.height_of_image, self.width_of_image, 1] ,name="mask")
 
             encoder_op,mask_op = self.encoder(self.x,self.mask)
             logit,decoder = self.decoder(encoder_op)
@@ -56,12 +58,12 @@ class BaseNN:
 
             self.loss=self.metrics(self.x,self.prediction)
 
-            self.optim = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
+            self.optim = tf.compat.v1.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
         
         else:
-            self.x = tf.placeholder("float",[None, self.height_of_image, self.width_of_image, self.num_channels] ,name="x")
-            self.mask = tf.placeholder("float",[None, self.height_of_image, self.width_of_image, 1] ,name="mask")
-            self.encoder_new=tf.placeholder("float",[None, self.height_of_image//16, self.width_of_image//16, 256] ,name="mask")
+            self.x = tf.compat.v1.placeholder("float",[None, self.height_of_image, self.width_of_image, self.num_channels] ,name="x")
+            self.mask = tf.compat.v1.placeholder("float",[None, self.height_of_image, self.width_of_image, 1] ,name="mask")
+            self.encoder_new=tf.compat.v1.placeholder("float",[None, self.height_of_image//16, self.width_of_image//16, 256] ,name="mask")
 
             self.encoder_op,self.mask_op = self.encoder(self.x,self.mask)
             
@@ -73,9 +75,9 @@ class BaseNN:
         
     def load(self):
         print(" [*] Reading checkpoint...")
-        self.saver = tf.train.Saver(max_to_keep=self.max_to_keep)
+        self.saver = tf.compat.v1.train.Saver(max_to_keep=self.max_to_keep)
         checkpoint_dir = os.path.join(os.getcwd(), self.base_dir, self.model_name, 'chekpoints')
-        ckpt = tf.train.get_checkpoint_state(checkpoint_dir)
+        ckpt = tf.compat.v1.train.get_checkpoint_state(checkpoint_dir)
         if ckpt and ckpt.model_checkpoint_path:
             ckpt_name = os.path.basename(ckpt.model_checkpoint_path)
             self.saver.restore(self.sess, os.path.join(checkpoint_dir, ckpt_name))
@@ -85,9 +87,9 @@ class BaseNN:
             return False
 
     def initialize_network(self):
-        self.sess= tf.InteractiveSession()
+        self.sess= tf.compat.v1.InteractiveSession()
         if os.path.exists(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'chekpoints'))== False:
-            self.sess.run(tf.global_variables_initializer())
+            self.sess.run(tf.compat.v1.global_variables_initializer())
            
         else:
             self.load()
@@ -134,7 +136,7 @@ class BaseNN:
                 
 
             if epoch%checkpoint_step ==0:
-                self.saver = tf.train.Saver(max_to_keep=self.max_to_keep)
+                self.saver = tf.compat.v1.train.Saver(max_to_keep=self.max_to_keep)
                 if os.path.isfile(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'chekpoints'))== False:
                     
                     os.makedirs(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'chekpoints'),exist_ok=True)
@@ -147,13 +149,13 @@ class BaseNN:
                
                 if os.path.isfile(os.path.join(os.getcwd(),self.base_dir,self.model_name, 'summaries'))== False:
                     os.makedirs(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'summaries'),exist_ok=True)
-                    tf.summary.FileWriter(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'summaries'), self.sess.graph)
-                    tf.summary.scalar("cost", minibatch_cost)
-                    merged_summary_op = tf.summary.merge_all()
+                    tf.compat.v1.summary.FileWriter(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'summaries'), self.sess.graph)
+                    tf.compat.v1.summary.scalar("cost", minibatch_cost)
+                    merged_summary_op = tf.compat.v1.summary.merge_all()
                 else:
-                    tf.summary.FileWriter(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'summaries'), self.sess.graph)
-                    tf.summary.scalar("cost", minibatch_cost)
-                    merged_summary_op = tf.summary.merge_all()
+                    tf.compat.v1.summary.FileWriter(os.path.join(os.getcwd(),self.base_dir, self.model_name, 'summaries'), self.sess.graph)
+                    tf.compat.v1.summary.scalar("cost", minibatch_cost)
+                    merged_summary_op = tf.compat.v1.summary.merge_all()
           
         print("network trained")
         
